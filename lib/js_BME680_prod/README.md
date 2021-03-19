@@ -12,7 +12,7 @@ Author: js @ https://github.com/juergs and https://forum.fhem.de/index.php/topic
 
 Designed specifically to work with the Adafruit BME680 Breakout  * http://www.adafruit.com/products/3660 and libraries.  
 
-These sensors uses I2C to communicate, up to 4 pins are required to interface
+These sensors are using I2C to communicate, up to 4 pins are required to interface
 
 # Adafruit BME680 Library [![Build Status](https://travis-ci.org/adafruit/Adafruit_BME680.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_BME680)
 Adafruit invests time and resources providing this open source code, 
