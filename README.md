@@ -29,3 +29,6 @@ ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/meg
 
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_BME680-TVOC_edit.png" width="600" >
+
+
+<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_BME680_Device.png" width="600" >
