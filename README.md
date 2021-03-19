@@ -12,3 +12,5 @@ ESPEasy-Sources: https://github.com/letscontrolit/ESPEasy
 ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
 
 
+<img src="https://your-image-url.type" width="100" height="100">
+
