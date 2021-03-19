@@ -15,7 +15,9 @@
     #include <Adafruit_BME680.h>      //--- Adafruit BME680 library  
     #include <bme680_defs.h>      //--- Adafruit BME680 library  
 
-    #define DEBUG_SERIAL    1
+    //#define BME680_DEBUG    1   // enable not ready loop:  if (! bme680.performReading())  
+
+    //#define DEBUG_SERIAL    1
 
     #ifdef DEBUG_SERIAL
     #define DEBUG_BEGIN       Serial.begin(115200)
@@ -30,7 +32,7 @@
     #endif
 
     //#define ESP8266
-    #define BME680_DEBUG                // adafruits internal debug switch, no throughput to Adafruit_BME680 
+    //#define BME680_DEBUG        1        // adafruits internal debug switch, no throughput to Adafruit_BME680 
     #define HAS_BME680MCU       false   //--- serial interfacing
     #define HAS_BME680I2C       true    //--- hard wired i2c interface, not spi 
     #define BME680_SEALEVEL     1015

@@ -22,7 +22,7 @@
     float           resFiltered;                          // low pass
     float           aF = 0;
     
-    unsigned long   prevBme680Millis    = millis();             // counter main loop for BME 680
+    unsigned long   _prevBme680Millis    = millis();             // counter main loop for BME 680
     unsigned long   intervalBme680      = 10000;                // 10 sec update interval default
     bool            bme680VocValid      = false;                // true if filter is initialized, ramp-up after start
     char            bme680Msg[128];                             // payload
@@ -210,31 +210,30 @@ void JS_BME680Class::do_bme680_measurement()
 //----------------------------------------------------------------------
 void JS_BME680Class::getBme680Readings() 
 {
-    prevBme680Millis  = millis(); // counter main loop for BME 680
-    
+    _prevBme680Millis  = millis(); // counter main loop for BME 680
+
+    if (useArduinoDebugOutput)
+      {
+        Serial.print(F("\t Entered JS_BME680Class::getBme680Readings() " ));  
+      }
+        
     if (! bme680.performReading()) 
     { 
       #ifdef BME680_DEBUG
        Serial.println("\tbme680.performReading not ready yet!" );        
-      #endif     
+      #endif         
       return;
     };
 
     //--- first stage measurements
-    float     t = bme680.temperature + param.t_offset;
-    
+    float     t = bme680.temperature + param.t_offset;    
     float     h = bme680.humidity + param.h_offset;
-    
     float     a = absHum(t, h);
-    
     aF = (aF == 0 || a < aF)?a:aF + 0.2 * (a - aF);
-    
     float     d = dewPoint(t, h);
-    
     float     p = bme680.pressure / 100.0F;
-    
     uint32_t  r = bme680.gas_resistance; // raw R VOC
-
+    
     #define SEALEVELPRESSURE_HPA (1013.25)
     
     if (!bme680VocValid )
@@ -275,6 +274,7 @@ void JS_BME680Class::getBme680Readings()
     else
     {
          _isValidIaq = false;
+         wdt_reset();
     }
     
     if (!bme680VocValid ) 
@@ -370,27 +370,36 @@ void JS_BME680Class::do_begin()
 {    
     delay(1000);   // wait debug console to settle 
 
-    DEBUG_OUT("\n*** JS_BME680Class started!\n");
+    DEBUG_OUT("\n*** JS_BME680Class started by do_begin()!\n");
 
     //--- set I2C-Clock
     #ifdef ESP8266
+      //DEBUG_OUT("\n*** JS_BME680Class start def ESP8266. \n");
       Wire.setClockStretchLimit(1000); //--- Default is 230us, see line78 of https://github.com/esp8266/Arduino/blob/master/cores/esp8266/core_esp8266_si2c.c
       Wire.setClock(400000);
       //--- (SDA,SCL) D1, D2 enable I2C for Wemos D1 mini SDA:D2 / SCL:D1 
       Wire.begin(D2, D1);
       //DEBUG_PRINT(F("Enabled: I2C for Wemos D1 mini SDA:D2 / SCL:D1 "));
     #else
+      DEBUG_OUT("\n*** JS_BME680Class start not def ESP8266. \n");
       Wire.begin();
     #endif 
 
    if (!bme680.begin(_I2C_BME680_ADDRESS)) 
     {
+        //DEBUG_OUT("\n*** JS_BME680Class start failed! Sensor Address not found!\n");
+        DEBUG_OUT("\n*** Sensor Address not found? I2C-Adr (default=0x76, BME_ADDR=low): ");DEBUG_OUT(_I2C_BME680_ADDRESS,HEX); 
         delay(3000);
-        while (1);
+        // **************  E X O D U S ? !
+        while (1)
+        {
+          // --- laesst ESPEasy nicht wegen Watchdog resetten
+          yield();
+        }
     }     
     else
     {
-        //DEBUG_PRINT(F("I2C: ok BME680 sensor found! :-) "));
+        DEBUG_PRINT(F("I2C: ok BME680 sensor found! :-) "));
     }
     
     //--- set up oversampling and filter initialization
