@@ -26,7 +26,7 @@
 
 #define PLUGIN_219
 #define PLUGIN_ID_219         219
-#define PLUGIN_NAME_219       "Environment - BME680"
+#define PLUGIN_NAME_219       "Environment - BME680 (P219)"
 #define PLUGIN_VALUENAME1_219 "Temperature"
 #define PLUGIN_VALUENAME2_219 "Humidity"
 #define PLUGIN_VALUENAME3_219 "Pressure"

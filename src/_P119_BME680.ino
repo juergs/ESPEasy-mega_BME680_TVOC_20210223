@@ -43,6 +43,8 @@ unsigned long 	prevTime  = 0;
 
 boolean Plugin_119_init = false;
 
+boolean _debugEnabled = false; 
+
 
 // UDP - Multicast declarations
 WiFiUDP udp; 
@@ -157,6 +159,7 @@ boolean Plugin_119(byte function, struct EventStruct *event, String& string)
         addFormSubHeader(F("Communication options"));
         addFormCheckBox(F("UDP slink transmission enable"), F("plugin_119_BME680_enable_slink"), PCONFIG(7) );
         
+        addLog(LOG_LEVEL_INFO, F("plugin_119_BME680_WEBFORM_LOADED"));
         success = true;
         break;
       }
@@ -209,7 +212,7 @@ boolean Plugin_119(byte function, struct EventStruct *event, String& string)
           PCONFIG(7) = 0;
         }
         
-          
+        addLog(LOG_LEVEL_INFO, F("plugin_119_BME680_WEBFORM_SAVE")); 
         success = true;
         break;
       }
@@ -304,8 +307,8 @@ boolean Plugin_119(byte function, struct EventStruct *event, String& string)
 
 			      addLog(LOG_LEVEL_INFO, F("JS_BME680-Read : ready + not initialized code done! do_begin called"));
             
-            bool debugEnabled = (uint8_t) PCONFIG(6);
-            if (debugEnabled)
+            _debugEnabled = (uint8_t) PCONFIG(6);
+            if (_debugEnabled)
               Serial.println(F("PLUGIN_INIT: JS_BME680 : ready + initialized!"));
 			
             success = true;
@@ -314,16 +317,29 @@ boolean Plugin_119(byte function, struct EventStruct *event, String& string)
         //-------------------------------------------------------------------------------------------------------
         //--- this code is done by having initialized BME680 on first read and not on instanciating class object! 
         //--- is established after 2nd Reading, after initialize with do_begin()-method. 
-        //--- using above set parameters as as bme680 startup!
+        //--- using above set parameters as  bme680 startup!
         //-------------------------------------------------------------------------------------------------------
         if (Plugin_119_init)
         {
+              _debugEnabled = (uint8_t) PCONFIG(6);
+              if (_debugEnabled) 
+              {
+                Serial.println(F("plugin_119_call_BME680_do_bme680_measurement"));
+                addLog(LOG_LEVEL_DEBUG, F("plugin_119_call_BME680_do_bme680_measurement"));
+              }
+
               JS_BME680.do_bme680_measurement();  
 
-              addLog(LOG_LEVEL_INFO, F("BME680-Read: performed measurement!"));              
               
-              bool debugEnabled = (uint8_t) PCONFIG(6);
-              if (debugEnabled) 
+              if (_debugEnabled) 
+              {
+                addLog(LOG_LEVEL_INFO, F("BME680-Read: performed measurement!"));              
+                addLog(LOG_LEVEL_DEBUG, F("plugin_119_call_BME680_do_bme680_measurement_done"));
+                Serial.println(F("plugin_119_BME680-Read: performed measurement!"));                
+              }
+
+              _debugEnabled = (uint8_t) PCONFIG(6);
+              if (_debugEnabled) 
                 Serial.println(F("PLUGIN_Read: JS_BME680 : init done, measure!"));
 
 			
@@ -440,7 +456,6 @@ boolean Plugin_119(byte function, struct EventStruct *event, String& string)
           cycleCounter = 0; 
         }
         success = true;
-
       }
 
   }
