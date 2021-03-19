@@ -22,3 +22,7 @@ ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/meg
 ###I2C-Setting:
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_I2C_Interface_Einstellungen.png" width="600" >
+
+###My BME680-DIY-Module:
+
+<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_I2C_Interface_Einstellungen.png" width="600" >
