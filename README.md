@@ -12,5 +12,5 @@ ESPEasy-Sources: https://github.com/letscontrolit/ESPEasy
 ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
 
 
-<img src="https://https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/BME680_Wemos_D1_OSHPARK_Modul.jpg" width="300" height="300">
+<img src="hhttps://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/BME680_Wemos_D1_OSHPARK_Modul.jpg" width="300" height="300">
 
