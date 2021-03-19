@@ -25,4 +25,4 @@ ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/meg
 
 ###My BME680-DIY-Module:
 
-<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_I2C_Interface_Einstellungen.png" width="600" >
+<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/OSH%20Park%20%7E%20Shared%20Projects%20by%20MightyPork.png" width="600" >
