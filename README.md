@@ -3,7 +3,7 @@
 ## Documentation & more info
 Project documentation could be found at: https://forum.fhem.de/index.php?topic=119678.msg1141237#msg1141237
 
-##For [FHEM](https://forum.fhem.de/) (slink-device) some additional files should be added:
+##For [FHEM](https://forum.fhem.de/) (slink-device), some additional files are needed:
 
 Grab them at:  https://github.com/herrmannj/AirQuality/tree/master/FHEM
 
