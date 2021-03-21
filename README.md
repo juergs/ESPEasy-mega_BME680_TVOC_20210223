@@ -1,4 +1,4 @@
-### Due to largen no. of files, content here includes only changes files in their directories.
+### Due to large no. of files, content here includes only changed files in their respective ESPEasy-directories.
 
 ## Documentation & more info:
 
