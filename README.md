@@ -20,6 +20,8 @@ ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/meg
 
 Every BME680--Module (ADR: 0x76 + 0x77, configurable) is supported. Care about positioning, because of tempereture-offset may be caused by ESP8266.
 
+Any contribution is welcome!
+
 ## Basic schematic:
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/BME680_Wemos_D1_OSHPARK_Modul.jpg" width="900">
