@@ -4,9 +4,9 @@
 
 Project documentation could be found at FHEM-Forum (german): [here](https://forum.fhem.de/index.php?topic=119678.msg1141237#msg1141237)
 
-## For [FHEM]
+## For [FHEM](https://forum.fhem.de/)
 
-(https://forum.fhem.de/) (slink-device), some additional files are needed:
+Slink-device will be auto-detected and created, some additional files are needed for this functionality. Copy them to FHEM-directory:
 
 Grab them at:  https://github.com/herrmannj/AirQuality/tree/master/FHEM
 
