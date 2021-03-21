@@ -15,6 +15,8 @@ ESPEasy-Sources: https://github.com/letscontrolit/ESPEasy
 
 ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
 
+Every BME680--Module could is supported. Care about positioning, because of tempereture-offset from ESP8266.
+
 ## Basic schematic:
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/BME680_Wemos_D1_OSHPARK_Modul.jpg" width="900">
