@@ -3,8 +3,11 @@
 ## Documentation & more info
 Project documentation could be found at: https://forum.fhem.de/index.php?topic=119678.msg1141237#msg1141237
 
-#For FHEM (slink-device) some additional files should be added:
-Grab them at:  https://github.com/herrmannj/AirQuality/tree/master/FHEM
+##For FHEM (slink-device) some additional files should be added:
+
+Grab them at:  
+
+https://github.com/herrmannj/AirQuality/tree/master/FHEM
 
 ##Sources:
 
