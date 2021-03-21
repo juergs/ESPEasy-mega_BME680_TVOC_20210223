@@ -7,13 +7,9 @@ Project documentation could be found at: https://forum.fhem.de/index.php?topic=1
 
 Grab them at:  https://github.com/herrmannj/AirQuality/tree/master/FHEM
 
-##Sources:
+##Sources: ESPEasy-Sources: https://github.com/letscontrolit/ESPEasy
 
-ESPEasy-Sources: https://github.com/letscontrolit/ESPEasy
-
-##Version 
-
-ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
+##Version: ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
 
 Every BME680--Module (ADR: 0x76 + 0x77, configurable) is supported. Care about positioning, because of tempereture-offset may be caused by ESP8266.
 
