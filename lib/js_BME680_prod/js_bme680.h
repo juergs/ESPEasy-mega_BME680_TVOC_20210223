@@ -2,6 +2,8 @@
     File:   js_bme680.h
     author: juergs @20190906
     Sensor is using @8266: I2C Pin D1= SCL  D2=SDA 
+    20210321_juergs: added new herrmanj calculation. 
+                     Thanks to implementation of Alex work @blog.loetzimmer.de
 */
 
 #ifndef JS_BME680_H
@@ -15,9 +17,7 @@
     #include <Adafruit_BME680.h>      //--- Adafruit BME680 library  
     #include <bme680_defs.h>      //--- Adafruit BME680 library  
 
-    //#define BME680_DEBUG    1   // enable not ready loop:  if (! bme680.performReading())  
-
-    //#define DEBUG_SERIAL    1
+    #define DEBUG_SERIAL    1
 
     #ifdef DEBUG_SERIAL
     #define DEBUG_BEGIN       Serial.begin(115200)
@@ -32,10 +32,10 @@
     #endif
 
     //#define ESP8266
-    //#define BME680_DEBUG        1        // adafruits internal debug switch, no throughput to Adafruit_BME680 
+    #define BME680_DEBUG                // adafruits internal debug switch, no throughput to Adafruit_BME680 
     #define HAS_BME680MCU       false   //--- serial interfacing
     #define HAS_BME680I2C       true    //--- hard wired i2c interface, not spi 
-    #define BME680_SEALEVEL     1015
+    #define BME680_SEALEVEL     1013.25 //default value of 1013.25 hPa  
     
     /** BME680 I2C addresses */
     #define BME680_I2C_ADDR_PRIMARY		UINT8_C(0x76)   // SDO = GND  pemue-adapter-board
@@ -60,7 +60,6 @@
 
             //--- global Constructor                       
             JS_BME680Class();
-            //~JS_BME680Class();
 
             //--- public methods 
             void            do_begin();
@@ -70,8 +69,6 @@
             unsigned long   get_bme680Interval(); 
 
             void            set_bme680_device_address(uint8_t addr) ;
-
-            //void            set_bme680_filtered_output(bool enable); 
 
             void            set_bme680_offset_temp(float toffset); 
 
@@ -99,10 +96,6 @@
 
             String          getFloatValueAsString(float value);   
             
-            //void            enablePlotOutput(bool state);  
-
-            //void            enableDebugOutput(bool val);               
-
         private:        
             
             //--- internal

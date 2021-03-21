@@ -1,8 +1,9 @@
-/* ----------------------------------
+/* ----------------------------------------------------------------------------
     File: js_bme680.c
     author: juergs @20190906
-----------------------------------*/
-#include <Arduino.h>
+     20210321_juergs: added new herrmanj calculation. 
+                     Thanks to implementation of Alex work @blog.loetzimmer.de
+-------------------------------------------------------------------------------*/
 #include <SimpleKalmanFilter.h>
 #include <math.h>
 #include <js_bme680.h>
@@ -10,39 +11,24 @@
    // #define BME680_DEFAULT_ADDRESS  (0x77)     ///< The default I2C address
    // #define BME680_SECONDARY_ADDRESS (0x76) 
 
-  uint8_t         _I2C_BME680_ADDRESS   = BME680_I2C_ADDR_PRIMARY;  // 0x76 should be choosen as default address 
+    uint8_t         _I2C_BME680_ADDRESS   = BME680_I2C_ADDR_PRIMARY;  // 0x76 should be choosen as default address 
 
-  SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
-
-  // bool            useFilteredTVocOutput = false;  
-  // bool            useArduinoPlotOutput  = false;
-  // bool            useArduinoDebugOutput = true; 
+    SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
 
     float           tVoc = 0; 
     float           resFiltered;                          // low pass
-    float           aF = 0;
+    float           base;
     
-    unsigned long   _prevBme680Millis    = millis();             // counter main loop for BME 680
+    unsigned long   prevBme680Millis    = millis();             // counter main loop for BME 680
     unsigned long   intervalBme680      = 10000;                // 10 sec update interval default
     bool            bme680VocValid      = false;                // true if filter is initialized, ramp-up after start
     char            bme680Msg[128];                             // payload
-    bool            _isValidIaq         = false;                // redundance to bme680VocValid?
+    bool            _isValidIaq         = false;                // true if baseline is stable
     
-    //--- automatic baseline correction
-    uint32_t        bme680_baseC        = 0;                    // highest adjusted r (lowest voc) in current time period
-    float           bme680_baseH        = 0;                    // abs hum (g/m3)
-    unsigned long   prevBme680AbcMillis = 0;                      // ts of last save to nv 
-    unsigned long   intervalBme680NV    = 604800000;                // 7 days of ms
-    uint8_t         bDelay              = 0;  
-    uint16_t        pressureSeaLevel    = 1013.25;            //default value of 1013.25 hPa  
-
     struct 
     { 
         float         t_offset            = -.5;                 // offset temperature sensor
         float         h_offset            = 1.5;                 // offset humitidy sensor  
-        uint32_t      vocBaseR            = 0;                   // base value for VOC resistance clean air, abc 
-        uint32_t      vocBaseC            = 0;                   // base value for VOC resistance clean air, abc  
-        float         vocHum              = 0;                   // reserved, abc
         uint32_t      signature           = 0x49415143;          // 'IAQC'
     } preload, param;                                       //--- stable new baseline counter (avoid short-term noise)    
 
@@ -53,7 +39,7 @@
         float   fAbsHum       = 0.0;        
         float   fPress        = 0.0;        
         float   fTvoc         = 0.0;
-        float   fTvocEst      = 0.0;                // Kalman filtered value 
+        float   fTvocEst      = 0.0;                //--- Kalman filtered value (Lowpass)
         float   fDew          = 0.0;        
         float   fGas          = 0.0;        
         float   fAlt          = 0.0;    
@@ -63,21 +49,6 @@
     
     GDATA_TYP gdata;   
 
-// //----------------------------------------------------------------------  
-// void JS_BME680Class::set_bme680_filtered_output(bool enable)
-// {
-//     useFilteredTVocOutput = enable; 
-// }
-// //----------------------------------------------------------------------
-// void JS_BME680Class::enableDebugOutput(bool val) 
-// {
-//     useArduinoDebugOutput = val; 
-// }
-// //----------------------------------------------------------------------
-// void JS_BME680Class::enablePlotOutput(bool state) 
-// {
-//     useArduinoPlotOutput = state; 
-// }
 //----------------------------------------------------------------------
 String JS_BME680Class::getFloatValueAsString(float value) 
 {    
@@ -140,7 +111,7 @@ float JS_BME680Class::getCalibAlt()
 //----------------------------------------------------------------------
 float JS_BME680Class::getGasRes(void)
 {
-    return (gdata.fGas) ;   
+    return (gdata.fGas) ;
 }
 //----------------------------------------------------------------------
 float JS_BME680Class::getSeaLevel()
@@ -210,45 +181,37 @@ void JS_BME680Class::do_bme680_measurement()
 //----------------------------------------------------------------------
 void JS_BME680Class::getBme680Readings() 
 {
-    _prevBme680Millis  = millis(); // counter main loop for BME 680
-
-    if (useArduinoDebugOutput)
-      {
-        Serial.print(F("\t Entered JS_BME680Class::getBme680Readings() " ));  
-      }
-        
+    prevBme680Millis  = millis(); // counter main loop for BME 680
+    
     if (! bme680.performReading()) 
     { 
       #ifdef BME680_DEBUG
        Serial.println("\tbme680.performReading not ready yet!" );        
-      #endif         
+      #endif     
       return;
     };
 
     //--- first stage measurements
     float     t = bme680.temperature + param.t_offset;    
-    float     h = bme680.humidity + param.h_offset;
+    float     h = bme680.humidity + param.h_offset;    
     float     a = absHum(t, h);
-    aF = (aF == 0 || a < aF)?a:aF + 0.2 * (a - aF);
-    float     d = dewPoint(t, h);
-    float     p = bme680.pressure / 100.0F;
+    float     d = dewPoint(t, h);    
+    float     p = bme680.pressure / 100.0F;    
     uint32_t  r = bme680.gas_resistance; // raw R VOC
-    
-    #define SEALEVELPRESSURE_HPA (1013.25)
-    
+
+	gdata.fTemp   = t; 
+	gdata.fHum    = h; 
+	gdata.fPress  = p;       
+	gdata.fGas    = r;  
+	gdata.fAbsHum = a; 
+
     if (!bme680VocValid )
-    {    
-      //--- invalid tvoc reading
+    {
       _isValidIaq = false; 
-      gdata.fTemp   = t; 
-      gdata.fHum    = h; 
-      gdata.fPress  = p;       
-      gdata.fGas    = r;  
-      gdata.fAbsHum = a; 
       gdata.fTvoc   = 0.0 ; 
       gdata.fTvocEst = 0.0; 
     }
-
+	
     if (r == 0) 
     {
       if (useArduinoDebugOutput)
@@ -260,76 +223,77 @@ void JS_BME680Class::getBme680Readings()
     }
 
     //--------------------------------------------------------------------
-    //--- from here we read  r_gas values, but haven't calculated tVoc yet 
+    //--- up here, we read  r_gas values, but haven't calculated tVoc yet 
     //--------------------------------------------------------------------
 
-    uint32_t base = bme680Abc(r, a);       // update base resistance 
-
-    if (!bme680VocValid && (millis() > 300000)) 
-    {       
+    if (!bme680VocValid )
+    { 
         //--- allow 300 sec (5 min) to warm-up sensor for stable voc resistance (300000ms)
-        resFiltered = r;        // preload low pass filter
-        bme680VocValid = true;           
+        if ( (millis() > 300000) ) 
+        {       
+            bme680VocValid = true;           
+        }else{
+            if (useArduinoDebugOutput)
+            {
+                Serial.print(F("\tJS_BME680.bme680VocValid not ready! Wait about 300 sec (5 min) to warm up ... " ));
+                Serial.println( ( (300000 - millis() ) / 1e3), 0 );
+            }
+            return;
+        }
     }
-    else
-    {
-         _isValidIaq = false;
-         wdt_reset();
-    }
-    
-    if (!bme680VocValid ) 
-    {
-      if (useArduinoDebugOutput)
-      {
-        Serial.print(F("\tJS_BME680.bme680VocValid not ready! Wait about 300 sec (5 min) to warm up ... " ));  Serial.println( ( (300000 - millis() ) / 1e3), 0 ); 
-      }
-      return;
-    }
-    
+        
     //------------------------------
     //--- up from here we read tVoc 
     //------------------------------
-    _isValidIaq = true;       
 
-    resFiltered += 0.1 * (r - resFiltered);    
-
-    float ratio = (float)base / (r * aF * 7.0F);
-
-    float tV  = ( 1250 * log(ratio) ) + 125;                     // approximation    
-
-    float tV2 = tVoc + 0.1 * (tV - tVoc);
-
-    tVoc = (tVoc == 0 || isnan(tVoc) || isinf(tVoc) ) ? tV : tV2;       // global tVoc
-
+	resFiltered += 0.3 * ((r * a) - resFiltered);
+	base += 0.0001 * (resFiltered - base);
+	
+    //--- new base line correction, low-pass cause of sensor latency 
+	if (base < resFiltered && !_isValidIaq) 
+    {
+		base += 0.5 * (resFiltered - base);
+	} 
+    else if (base < resFiltered && _isValidIaq) 
+    {
+		base += 0.005 * (resFiltered - base);
+	} else if (!_isValidIaq) 
+    {
+		_isValidIaq = true;
+	};
+	
+    float ratio = base / resFiltered;
+	if (ratio < 1) 
+    {
+		ratio = 1;
+	};
+	
+    tVoc = 125 + ((ratio - 1) * 1500);
     gdata.fTvoc = tVoc; 
 
-    float tvoc_estimated_value = simpleKalmanFilter.updateEstimate(tVoc);    
-
-    gdata.fTvocEst = tvoc_estimated_value; 
+    float tvoc_estimated_value = simpleKalmanFilter.updateEstimate(tVoc);
+    gdata.fTvocEst = tvoc_estimated_value;
   
     if (useArduinoDebugOutput)
     {
       Serial.println(F("\t--------------------------------------"));        
-      Serial.print(F("\t Timestamp: \t\t")); Serial.println( (int64_t) get_timestamp_us() / 1e6);     
-      Serial.print(F("\t tVoc:\t\t\t")); Serial.println(tVoc); 
-      Serial.print(F("\t tVocEst:\t\t")); Serial.println(tvoc_estimated_value); 
-      Serial.print(F("\t Approx (tV):\t\t")); Serial.println(tV); 
-      Serial.print(F("\t Approx (tV2):\t\t")); Serial.println(tV2);
-      Serial.print(F("\t Ratio:\t\t\t")); Serial.println(ratio); 
-      Serial.print(F("\t Ratio_log:\t\t"));Serial.println(log(ratio)); 
-      Serial.print(F("\t ABC_base:\t\t")); Serial.println(base);             
-      Serial.print(F("\t Abs_Hum:\t\t")); Serial.println(aF);      
-      Serial.print(F("\t Resistance (raw):\t")); Serial.println(r); 
-      Serial.print(F("\t Resistance (filt.):\t")); Serial.println(resFiltered);       
+      Serial.print(F("\t Timestamp: \t\t")); Serial.println( (int64_t) get_timestamp_us() / 1e6);
+      Serial.print(F("\t tVoc:\t\t\t")); Serial.println(tVoc);
+      Serial.print(F("\t tVocEst:\t\t")); Serial.println(tvoc_estimated_value);
+      Serial.print(F("\t Ratio:\t\t\t")); Serial.println(ratio);
+      Serial.print(F("\t Ratio_log:\t\t"));Serial.println(log(ratio));
+      Serial.print(F("\t ABC_base:\t\t")); Serial.println(base);
+      Serial.print(F("\t Abs_Hum:\t\t")); Serial.println(a);
+      Serial.print(F("\t Resistance (raw):\t")); Serial.println(r);
+      Serial.print(F("\t Resistance (filt.):\t")); Serial.println(resFiltered);
       Serial.print(F("\t Temp:\t\t\t")); Serial.println(t);
       Serial.print(F("\t Hum:\t\t\t")); Serial.println(h);
       Serial.print(F("\t Press:\t\t\t")); Serial.println(p);
       Serial.print(F("\t Dewpoint:\t\t")); Serial.println(d);
-      Serial.print(F("\t Alt:\t\t\t")); Serial.println(getAlt());   
-      Serial.print(F("\t T-Offs:\t\t\t")); Serial.println(param.t_offset);      
-      Serial.print(F("\t H-Offs:\t\t\t")); Serial.println(param.h_offset);      
+      Serial.print(F("\t Alt:\t\t\t")); Serial.println(getAlt());
+      Serial.print(F("\t T-Offs:\t\t\t")); Serial.println(param.t_offset);
+      Serial.print(F("\t H-Offs:\t\t\t")); Serial.println(param.h_offset);
     }
-    
 
     //--- use the Arduino-Serial Ploter for a good visualization
     if (useArduinoPlotOutput)
@@ -345,61 +309,32 @@ void JS_BME680Class::getBme680Readings()
     }    
 
   };  
-  //----------------------------------------------------------------------
-  uint32_t JS_BME680Class::bme680Abc(uint32_t r, float a) 
-  {   
-    //--- automatic baseline correction
-    uint32_t b = r * a * 7.0F;
-    if (b > bme680_baseC && bDelay > 5) 
-    {     
-      //--- ensure that new baseC is stable for at least >5*10sec (clean air)
-      bme680_baseC = b;
-      bme680_baseH = a;
-    } else if (b > bme680_baseC) 
-    {
-      bDelay++;
-      //return b;
-    } else 
-    {
-      bDelay = 0;
-    };    
-    return (param.vocBaseC > bme680_baseC)?param.vocBaseC:bme680_baseC;
-  };
 //----------------------------------------------------------------
 void JS_BME680Class::do_begin()
 {    
     delay(1000);   // wait debug console to settle 
 
-    DEBUG_OUT("\n*** JS_BME680Class started by do_begin()!\n");
+    DEBUG_OUT("\n*** JS_BME680Class started calling do_begin()!\n");
 
     //--- set I2C-Clock
-    #ifdef ESP8266
-      //DEBUG_OUT("\n*** JS_BME680Class start def ESP8266. \n");
-      Wire.setClockStretchLimit(1000); //--- Default is 230us, see line78 of https://github.com/esp8266/Arduino/blob/master/cores/esp8266/core_esp8266_si2c.c
-      Wire.setClock(400000);
+//    #ifdef ESP8266
+      //Wire.setClockStretchLimit(1000); //--- Default is 230us, see line78 of https://github.com/esp8266/Arduino/blob/master/cores/esp8266/core_esp8266_si2c.c
+      //Wire.setClock(400000);
       //--- (SDA,SCL) D1, D2 enable I2C for Wemos D1 mini SDA:D2 / SCL:D1 
-      Wire.begin(D2, D1);
+      //Wire.begin(D2, D1);
       //DEBUG_PRINT(F("Enabled: I2C for Wemos D1 mini SDA:D2 / SCL:D1 "));
-    #else
-      DEBUG_OUT("\n*** JS_BME680Class start not def ESP8266. \n");
-      Wire.begin();
-    #endif 
+//    #else
+      //Wire.begin();
+//    #endif 
 
    if (!bme680.begin(_I2C_BME680_ADDRESS)) 
     {
-        //DEBUG_OUT("\n*** JS_BME680Class start failed! Sensor Address not found!\n");
-        DEBUG_OUT("\n*** Sensor Address not found? I2C-Adr (default=0x76, BME_ADDR=low): ");DEBUG_OUT(_I2C_BME680_ADDRESS,HEX); 
         delay(3000);
-        // **************  E X O D U S ? !
-        while (1)
-        {
-          // --- laesst ESPEasy nicht wegen Watchdog resetten
-          yield();
-        }
+        while (1);
     }     
     else
     {
-        DEBUG_PRINT(F("I2C: ok BME680 sensor found! :-) "));
+        //DEBUG_PRINT(F("I2C: ok BME680 sensor found! :-) "));
     }
     
     //--- set up oversampling and filter initialization
