@@ -2,6 +2,8 @@
 
 ## Documentation & more info:
 
+Actually, this TVOC calculation is as Version 2 under development. Seems to be mirrored in comparison to BSEC-algrithm.
+
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V2_gespiegelt.png" heigt=300/>
 
 Project documentation could be found at FHEM-Forum (german): [here](https://forum.fhem.de/index.php?topic=119678.msg1141237#msg1141237)
