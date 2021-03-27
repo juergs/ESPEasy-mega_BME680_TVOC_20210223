@@ -2,6 +2,8 @@
 
 ## Documentation & more info:
 
+https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V2_gespiegelt.png
+
 Project documentation could be found at FHEM-Forum (german): [here](https://forum.fhem.de/index.php?topic=119678.msg1141237#msg1141237)
 
 ## For [FHEM](https://forum.fhem.de/)
