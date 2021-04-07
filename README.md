@@ -1,5 +1,8 @@
 ### Due to large no. of files, content here includes only changed files in their respective ESPEasy-directories.
 
+### This is V2-version with "optimized" tvoc-calculation. In comparison  to V1-calculation version, seems to be that the responsivity to changes
+seems to be much more intensive to V1 also the cutdown when values enter baseline is also happening.
+
 ## Documentation & more info:
 
 Actually, this TVOC calculation is as Version 2 under development. Seems to be mirrored in comparison to BSEC-algrithm.
