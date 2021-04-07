@@ -6,7 +6,7 @@ Seems to be much more intensive to V1 also the cutdown when values enter baselin
 Comparison between V1 / V2 / MH-Z19B readings: 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V1_V2_MHZ19.png" width="900"> 
 
-Responses to fast TVOC change: 
+Responses and overshooting of V2 to fast TVOC change: 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V2_Sprungantwort.png" width="900"> 
 
 ## Documentation & more info:
