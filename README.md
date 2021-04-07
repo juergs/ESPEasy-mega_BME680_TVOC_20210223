@@ -11,7 +11,7 @@ Responses and overshooting of V2 to fast TVOC change:
 
 ## Documentation & more info:
 
-Actually, this TVOC calculation is as Version 2 under development. Seems to be mirrored in comparison to BSEC-algrithm.
+Actually, this TVOC calculation is as Version 2 under development. Seems V2 have also some mirroring effects in comparison to BSEC-algrithm and V1.
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V2_gespiegelt.png" heigt=300/>
 
@@ -31,9 +31,9 @@ ESPEasy (@March, 2021): https://github.com/letscontrolit/ESPEasy
 
 ESPEasy-mega-20210223: https://github.com/letscontrolit/ESPEasy/releases/tag/mega-20210223
 
-Every BME680--Module (ADR: 0x76 + 0x77, configurable) is supported. Care about positioning, because of tempereture-offset may be caused by ESP8266.
+Every BME680--Module (ADR: 0x76 + 0x77, configurable) is supported. Care about positioning, because of temperature-offset may be caused by ESP8266.
 
-Any contribution is welcome!
+Any contribution is apreciated and welcome!
 
 ## Basic schematic:
 
