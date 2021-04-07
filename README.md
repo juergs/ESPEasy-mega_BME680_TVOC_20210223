@@ -1,7 +1,10 @@
 ### Due to large no. of files, content here includes only changed files in their respective ESPEasy-directories.
 
 ### This is V2-version with "optimized" tvoc-calculation. In comparison  to V1-calculation version, seems to be that the responsivity to changes
-seems to be much more intensive to V1 also the cutdown when values enter baseline is also happening.
+Seems to be much more intensive to V1 also the cutdown when values enter baseline is also happening. The V2 seems not to be as reliable as V1-calculation.
+
+Comparison between V1 / V2 / MH-Z19B readings: 
+<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/V1_V2_MHZ19.png" width="900"> 
 
 ## Documentation & more info:
 
