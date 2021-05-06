@@ -56,3 +56,6 @@ Any contribution is apreciated and welcome!
 
 
 <img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/ESP_Easy_BME680_Device.png" width="900" >
+
+
+<img src="https://github.com/juergs/ESPEasy-mega_BME680_TVOC_20210223/blob/main/MH-Z19_ESPEASY_BSEC_Comparison.png" width="900" >
